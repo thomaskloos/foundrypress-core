@@ -1,0 +1,16 @@
+# System / OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local config (DO NOT SHARE)
+config/site.php
+/license-data/
+
+# Node / misc (future-safe)
+node_modules/
+
+# VS Code (optional)
+.vscode/settings.json
