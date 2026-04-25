@@ -1,37 +1,64 @@
 /* =========================================================
    FoundryPress Hub Stylesheet
    ---------------------------------------------------------
-   Core UI system for Hub interface (dashboard, tools, forms)
-   Designed for clarity, consistency, and scalability
+   Professional admin UI for Hub dashboards, tools, forms,
+   cards, dropdown navigation, Pro modules, and license panels.
+
+   Drop-in safe:
+   - Preserves existing FoundryPress Hub class names.
+   - Does not depend on public site CSS.
+   - Keeps Core/Pro UI compatible.
    ========================================================= */
 
+
 /* =========================================================
-   1. CSS Variables (Design Tokens)
+   01. Design Tokens
    ========================================================= */
 
 :root {
-    --hub-bg: #f4f7fb;
+    --hub-bg: #f5f7fb;
     --hub-surface: #ffffff;
-    --hub-surface-soft: #f8fbff;
+    --hub-surface-soft: #f8fafc;
+    --hub-surface-tint: #eef5ff;
 
-    --hub-text: #183247;
-    --hub-text-soft: #5f7384;
+    --hub-text: #102033;
+    --hub-text-soft: #5f6f82;
+    --hub-text-muted: #7a8a9b;
 
-    --hub-border: #d9e4ef;
+    --hub-border: #dbe4ee;
+    --hub-border-strong: #c9d6e5;
 
-    --hub-primary: #2f6fed;
-    --hub-primary-dark: #1d56c7;
+    --hub-primary: #2563eb;
+    --hub-primary-dark: #1d4ed8;
+    --hub-primary-soft: #e8f0ff;
 
-    --hub-shadow: 0 14px 40px rgba(26, 54, 93, 0.08);
+    --hub-success-bg: #ecfdf3;
+    --hub-success-border: #abefc6;
+    --hub-success-text: #027a48;
+
+    --hub-error-bg: #fef3f2;
+    --hub-error-border: #fecdca;
+    --hub-error-text: #b42318;
+
+    --hub-warning-bg: #fff8e6;
+    --hub-warning-border: #ffe0a3;
+    --hub-warning-text: #9a5b00;
+
+    --hub-shadow-sm: 0 1px 2px rgba(16, 32, 51, 0.05);
+    --hub-shadow: 0 10px 28px rgba(16, 32, 51, 0.08);
+    --hub-shadow-lg: 0 18px 48px rgba(16, 32, 51, 0.11);
 
     --hub-radius: 18px;
     --hub-radius-sm: 12px;
+    --hub-radius-xs: 9px;
 
     --hub-max: 1180px;
+    --hub-focus: 0 0 0 4px rgba(37, 99, 235, 0.14);
 }
 
+
 /* =========================================================
-   2. Base / Reset
+   02. Base / Reset
    ========================================================= */
 
 *,
@@ -42,14 +69,20 @@
 
 html {
     font-size: 16px;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
+    display: block;
+    min-height: 100vh;
     margin: 0;
-    font-family: Inter, Arial, Helvetica, sans-serif;
-    background: var(--hub-bg);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 30rem),
+        var(--hub-bg);
     color: var(--hub-text);
-    line-height: 1.6;
+    line-height: 1.55;
+    text-rendering: optimizeLegibility;
 }
 
 a {
@@ -57,145 +90,263 @@ a {
     text-decoration: none;
 }
 
+img,
+svg {
+    max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: none;
+    box-shadow: var(--hub-focus);
+}
+
+
 /* =========================================================
-   3. Layout Shell
+   03. Layout Shell
    ========================================================= */
 
 .hub-shell {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
 }
 
 .hub-main {
-    flex: 1;
+    flex: 1 0 auto;
     width: min(100% - 2rem, var(--hub-max));
+    max-width: var(--hub-max);
     margin: 0 auto;
-    padding-block: 2rem 4rem;
+    padding: 0.65rem 0 3rem;
 }
 
+.hub-main > *:first-child {
+    margin-top: 0;
+}
+
+
 /* =========================================================
-   4. Top Navigation / Header
+   04. Topbar / Brand / Navigation
    ========================================================= */
 
 .hub-topbar {
     position: sticky;
     top: 0;
-    z-index: 20;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(10px);
+    z-index: 40;
+    background: rgba(255, 255, 255, 0.94);
     border-bottom: 1px solid var(--hub-border);
+    box-shadow: var(--hub-shadow-sm);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 }
 
 .hub-topbar__inner {
     width: min(100% - 2rem, var(--hub-max));
+    min-height: 64px;
     margin: 0 auto;
-    min-height: 76px;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
 }
 
-/* Brand */
+.hub-brand,
+.site-logo {
+    display: inline-flex;
+    align-items: center;
+    min-width: max-content;
+}
+
+.hub-topbar .site-logo__img {
+    display: block;
+    width: auto;
+    height: 38px;
+}
 
 .hub-brand__link {
     display: inline-flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.05rem;
 }
 
 .hub-brand__eyebrow {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--hub-primary);
-    font-weight: 700;
+    font-weight: 800;
 }
 
 .hub-brand__title {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
+    line-height: 1.1;
     font-weight: 800;
     color: var(--hub-text);
 }
-
-/* Navigation */
 
 .hub-nav {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 0.35rem;
 }
 
-.hub-nav__link {
-    padding: 0.7rem 1rem;
+.hub-nav__link,
+.hub-nav__button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0.55rem 0.85rem;
+    border: 0;
     border-radius: 999px;
+    background: transparent;
     color: var(--hub-text-soft);
-    font-weight: 600;
-    transition: 0.2s ease;
+    font-size: 0.94rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color 0.16s ease,
+        color 0.16s ease,
+        transform 0.16s ease;
 }
 
 .hub-nav__link:hover,
-.hub-nav__link.is-active {
-    background: #eaf1ff;
+.hub-nav__link.is-active,
+.hub-nav__button:hover,
+.hub-nav__dropdown:focus-within > .hub-nav__button {
+    background: var(--hub-primary-soft);
     color: var(--hub-primary-dark);
 }
 
+.hub-nav__link:hover,
+.hub-nav__button:hover {
+    transform: translateY(-1px);
+}
+
+
+/* Navigation Dropdowns */
+
+.hub-nav__dropdown {
+    position: relative;
+    display: inline-block; /* important */
+}
+
+.hub-nav__menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 210px;
+
+    display: none;
+    flex-direction: column;
+
+    padding: 0.4rem;
+    background: var(--hub-surface);
+    border: 1px solid var(--hub-border);
+    border-radius: 14px;
+    box-shadow: var(--hub-shadow);
+    z-index: 999; /* make sure it sits above header */
+}
+
+.hub-nav__dropdown:hover .hub-nav__menu,
+.hub-nav__dropdown:focus-within .hub-nav__menu {
+    display: flex;
+}
+
 /* =========================================================
-   5. Hero Section
+   05. Page Intro / Hero
    ========================================================= */
 
 .hub-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #eef5ff 100%);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
     border: 1px solid var(--hub-border);
-    border-radius: 28px;
-    box-shadow: var(--hub-shadow);
-    padding: 3rem;
-    margin-bottom: 2rem;
+    border-radius: var(--hub-radius);
+    background: linear-gradient(135deg, #ffffff 0%, var(--hub-surface-tint) 100%);
+    box-shadow: var(--hub-shadow-sm);
 }
 
 .hub-hero__content {
     max-width: 760px;
 }
 
+.hub-hero__actions,
+.hub-section__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    align-items: center;
+}
+
 .hub-kicker {
-    display: inline-block;
-    margin-bottom: 0.85rem;
-    font-size: 0.8rem;
-    font-weight: 800;
-    letter-spacing: 0.1em;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 0.65rem;
+    font-size: 0.74rem;
+    font-weight: 850;
+    letter-spacing: 0.11em;
     text-transform: uppercase;
     color: var(--hub-primary);
 }
 
 .hub-hero h1 {
-    margin: 0 0 0.75rem;
-    font-size: clamp(2.2rem, 4vw, 3.5rem);
-    line-height: 1.15;
+    margin: 0 0 0.55rem;
+    font-size: clamp(1.65rem, 3vw, 2.35rem);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
 }
 
 .hub-hero p {
+    max-width: 66ch;
     margin: 0;
     color: var(--hub-text-soft);
+    font-size: 1rem;
 }
 
+
 /* =========================================================
-   6. Sections & Headings
+   06. Sections / Headings
    ========================================================= */
 
+.hub-section {
+    margin: 0;
+}
+
 .hub-section + .hub-section {
-    margin-top: 2rem;
+    margin-top: 1.15rem;
 }
 
 .hub-section__head {
-    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.8rem;
 }
 
+.hub-section__head h1,
 .hub-section__head h2 {
-    margin: 0 0 0.75rem;
-    font-size: 1.75rem;
+    margin: 0 0 0.25rem;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 
 .hub-section__head p {
@@ -203,495 +354,536 @@ a {
     color: var(--hub-text-soft);
 }
 
+.hub-section__head code {
+    padding: 0.12rem 0.32rem;
+    border-radius: 6px;
+    background: var(--hub-primary-soft);
+    color: var(--hub-primary-dark);
+    font-size: 0.9em;
+}
+
+
 /* =========================================================
-   7. Cards
+   07. Grid / Cards
    ========================================================= */
 
-.hub-card-grid {
+.hub-card-grid,
+.hub-library-grid,
+.hub-theme-grid {
     display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1.25rem;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.hub-card,
+.hub-library-card,
+.hub-theme-card {
+    min-width: 0;
+    background: var(--hub-surface);
+    border: 1px solid var(--hub-border);
+    border-radius: var(--hub-radius);
+    box-shadow: var(--hub-shadow-sm);
+    padding: 1.25rem;
+    transition:
+        border-color 0.16s ease,
+        box-shadow 0.16s ease,
+        transform 0.16s ease;
 }
 
 .hub-card {
     grid-column: span 6;
-    background: var(--hub-surface);
-    border: 1px solid var(--hub-border);
-    border-radius: var(--hub-radius);
+}
+
+.hub-library-card {
+    grid-column: span 12;
+}
+
+.hub-theme-card {
+    grid-column: span 6;
+}
+
+.hub-card:hover,
+.hub-library-card:hover,
+.hub-theme-card:hover {
+    border-color: var(--hub-border-strong);
     box-shadow: var(--hub-shadow);
-    padding: 1.5rem;
+    transform: translateY(-1px);
 }
 
 .hub-card--soft {
     background: var(--hub-surface-soft);
 }
 
-.hub-card h3 {
-    margin: 0 0 0.75rem;
+.hub-card h3,
+.hub-library-card h3,
+.hub-theme-card h3 {
+    margin: 0 0 0.45rem;
+    font-size: 1.08rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
 }
 
-.hub-card p {
+.hub-card p,
+.hub-library-card p,
+.hub-theme-card p {
     margin: 0;
     color: var(--hub-text-soft);
 }
 
-/* Tags */
+.hub-card p + p,
+.hub-panel p + p {
+    margin-top: 0.7rem;
+}
 
 .hub-card__tag,
 .hub-card__meta {
     display: inline-flex;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--hub-primary-dark);
-    background: #eaf1ff;
-    padding: 0.45rem 0.65rem;
+    align-items: center;
+    width: fit-content;
+    margin-bottom: 0.75rem;
+    padding: 0.36rem 0.58rem;
     border-radius: 999px;
-    margin-bottom: 0.9rem;
+    background: var(--hub-primary-soft);
+    color: var(--hub-primary-dark);
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
 }
-
-/* Actions */
 
 .hub-card__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: 0.65rem;
     margin-top: 1rem;
 }
 
 .hub-card__link {
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 800;
     color: var(--hub-primary-dark);
 }
 
-.hub-card__meta-text {
-    margin-top: 0.75rem;
-    color: var(--hub-text-soft);
-    font-size: 0.95rem;
+.hub-card__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
 }
 
+.hub-card__meta-text {
+    margin-top: 0.65rem;
+    color: var(--hub-text-muted);
+    font-size: 0.92rem;
+}
+
+
 /* =========================================================
-   8. Panels (Forms, Outputs, Containers)
+   08. Panels / Containers
    ========================================================= */
 
 .hub-panel {
     background: var(--hub-surface);
     border: 1px solid var(--hub-border);
-    border-radius: 24px;
-    box-shadow: var(--hub-shadow);
-    padding: 1.75rem;
+    border-radius: 22px;
+    box-shadow: var(--hub-shadow-sm);
+    padding: 1.35rem;
 }
 
+.hub-panel + .hub-panel {
+    margin-top: 1rem;
+}
+
+.hub-panel__content > *:first-child {
+    margin-top: 0;
+}
+
+.hub-panel__content > *:last-child {
+    margin-bottom: 0;
+}
+
+.hub-steps {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+}
+
+.hub-steps li + li {
+    margin-top: 0.35rem;
+}
+
+
 /* =========================================================
-   9. Forms
+   09. Forms
    ========================================================= */
 
 .hub-form {
     display: grid;
-    gap: 1rem;
+    gap: 0.95rem;
     margin-top: 0.5rem;
 }
 
 .hub-form__group {
     display: grid;
-    gap: 0.45rem;
+    gap: 0.4rem;
 }
 
-.hub-form__group label {
-    font-weight: 700;
+.hub-form__group label,
+.seo-field label {
+    color: var(--hub-text);
+    font-size: 0.92rem;
+    font-weight: 800;
 }
 
 .hub-form__group input,
 .hub-form__group select,
-.hub-form__group textarea {
+.hub-form__group textarea,
+.seo-field input,
+.seo-field select,
+.seo-field textarea {
     width: 100%;
     border: 1px solid var(--hub-border);
-    border-radius: 14px;
-    padding: 0.9rem 1rem;
-    font: inherit;
+    border-radius: 12px;
+    padding: 0.78rem 0.9rem;
     background: #fff;
+    box-shadow: var(--hub-shadow-sm);
+    color: var(--hub-text);
+    transition:
+        border-color 0.16s ease,
+        box-shadow 0.16s ease;
 }
 
 .hub-form__group input,
-.hub-form__group select {
-    min-height: 52px;
+.hub-form__group select,
+.seo-field input,
+.seo-field select {
+    min-height: 46px;
 }
 
-.hub-form__group textarea {
-    min-height: 140px;
+.hub-form__group textarea,
+.seo-field textarea {
+    min-height: 126px;
     resize: vertical;
 }
 
 .hub-form__group input:focus,
 .hub-form__group select:focus,
-.hub-form__group textarea:focus {
-    outline: 2px solid rgba(47, 111, 237, 0.18);
+.hub-form__group textarea:focus,
+.seo-field input:focus,
+.seo-field select:focus,
+.seo-field textarea:focus {
     border-color: var(--hub-primary);
 }
 
-/* Form Actions */
-
-.hub-form__actions {
+.hub-form__actions,
+.seo-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 0.65rem;
+    margin-top: 1rem;
 }
-
-/* Checkbox */
 
 .hub-checkbox {
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
-    font-weight: 600;
+    gap: 0.6rem;
+    font-weight: 700;
 }
 
 .hub-checkbox input {
     width: 18px;
     height: 18px;
+    accent-color: var(--hub-primary);
 }
+
 
 /* =========================================================
    10. Buttons
    ========================================================= */
 
-.hub-btn {
+.hub-btn,
+.button,
+button[type="submit"] {
+    appearance: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
-    padding: 0.85rem 1.2rem;
+    min-height: 44px;
+    padding: 0.72rem 1.05rem;
+    border: 1px solid transparent;
     border-radius: 999px;
-    font-weight: 700;
-    transition: 0.2s ease;
+    font: inherit;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color 0.16s ease,
+        border-color 0.16s ease,
+        color 0.16s ease,
+        transform 0.16s ease,
+        box-shadow 0.16s ease;
 }
 
-.hub-btn--primary {
+.hub-btn:hover,
+.button:hover,
+button[type="submit"]:hover {
+    transform: translateY(-1px);
+}
+
+.hub-btn--primary,
+.button-primary,
+button[type="submit"] {
     background: var(--hub-primary);
     color: #fff;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
 }
 
-.hub-btn--primary:hover {
+.hub-btn--primary:hover,
+.button-primary:hover,
+button[type="submit"]:hover {
     background: var(--hub-primary-dark);
 }
 
-.hub-btn--secondary {
+.hub-btn--secondary,
+.button:not(.button-primary) {
     background: #fff;
-    border: 1px solid var(--hub-border);
+    border-color: var(--hub-border);
+    color: var(--hub-text);
 }
 
-.hub-btn--secondary:hover {
-    background: #f7faff;
+.hub-btn--secondary:hover,
+.button:not(.button-primary):hover {
+    background: var(--hub-surface-soft);
+    border-color: var(--hub-border-strong);
 }
+
 
 /* =========================================================
-   11. Alerts
+   11. Alerts / Messages
    ========================================================= */
 
-.hub-alert {
-    border-radius: 14px;
-    padding: 0.95rem 1rem;
+.hub-alert,
+.seo-message,
+.seo-error {
+    border: 1px solid transparent;
+    border-radius: 13px;
+    padding: 0.88rem 1rem;
     margin-bottom: 1rem;
-    font-weight: 600;
+    font-weight: 750;
 }
 
-.hub-alert--success {
-    background: #edf9f1;
-    border: 1px solid #cfead8;
-    color: #1e6a3e;
+.hub-alert--success,
+.seo-message {
+    background: var(--hub-success-bg);
+    border-color: var(--hub-success-border);
+    color: var(--hub-success-text);
 }
 
-.hub-alert--error {
-    background: #fff1f1;
-    border: 1px solid #f0cccc;
-    color: #9f2d2d;
+.hub-alert--error,
+.seo-error {
+    background: var(--hub-error-bg);
+    border-color: var(--hub-error-border);
+    color: var(--hub-error-text);
 }
+
+.hub-alert--warning {
+    background: var(--hub-warning-bg);
+    border-color: var(--hub-warning-border);
+    color: var(--hub-warning-text);
+}
+
 
 /* =========================================================
-   12. Prompt Output
+   12. Prompt Tools
    ========================================================= */
 
 .hub-output-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.85rem;
-    margin-bottom: 1rem;
+    gap: 0.65rem;
+    margin-bottom: 0.9rem;
 }
 
 .hub-prompt-output {
     width: 100%;
-    min-height: 420px;
+    min-height: 360px;
     border: 1px solid var(--hub-border);
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 1rem;
-    line-height: 1.6;
     background: #fbfdff;
+    box-shadow: var(--hub-shadow-sm);
+    color: var(--hub-text);
+    line-height: 1.6;
     resize: vertical;
 }
+
 
 /* =========================================================
    13. Prompt Library
    ========================================================= */
 
-.hub-library-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1.25rem;
-}
-
-.hub-library-card {
-    grid-column: span 12;
-    background: var(--hub-surface);
-    border: 1px solid var(--hub-border);
-    border-radius: var(--hub-radius);
-    box-shadow: var(--hub-shadow);
-    padding: 1.5rem;
-}
-
 .hub-library-card__meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 0.85rem;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
 }
 
 .hub-library-card__brand {
-    font-weight: 700;
+    font-weight: 800;
     color: var(--hub-text-soft);
 }
 
 .hub-library-card__date {
-    margin-top: 0.75rem;
-    margin-bottom: 1rem;
-    color: var(--hub-text-soft);
-    font-size: 0.95rem;
+    margin-top: 0.65rem;
+    margin-bottom: 0.85rem;
+    color: var(--hub-text-muted);
+    font-size: 0.92rem;
 }
+
 
 /* =========================================================
-   14. Footer
+   14. Theme Cards
    ========================================================= */
 
-.hub-footer {
-    border-top: 1px solid var(--hub-border);
-    background: #fff;
+.hub-theme-card.is-current {
+    border-color: var(--hub-primary);
+    box-shadow: var(--hub-focus), var(--hub-shadow);
 }
 
-.hub-footer__inner {
+.hub-theme-card__preview {
+    margin-bottom: 0.9rem;
+    padding: 0.85rem;
+    border: 1px solid var(--hub-border);
+    border-radius: 16px;
+    background: var(--hub-surface-soft);
+}
+
+.hub-theme-card__surface {
+    min-height: 130px;
+    padding: 0.9rem;
+    border: 1px solid;
+    border-radius: 13px;
+}
+
+.hub-theme-card__line {
+    height: 9px;
+    margin-bottom: 0.55rem;
+    border-radius: 999px;
+}
+
+.hub-theme-card__line--title {
+    width: 65%;
+    height: 13px;
+}
+
+.hub-theme-card__accent {
+    width: 86px;
+    height: 30px;
+    margin-top: 0.9rem;
+    border-radius: 999px;
+}
+
+.hub-theme-card__swatches {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    margin-bottom: 0.9rem;
+}
+
+.hub-theme-card__swatches span {
+    width: 23px;
+    height: 23px;
+    border: 1px solid rgba(16, 32, 51, 0.12);
+    border-radius: 999px;
+}
+
+.hub-theme-card__form {
+    margin-top: 0.45rem;
+}
+
+
+/* =========================================================
+   15. Pro SEO Manager
+   ========================================================= */
+
+.seo-wrap {
     width: min(100% - 2rem, var(--hub-max));
-    margin: 0 auto;
-    padding: 1.1rem 0 2rem;
-    color: var(--hub-text-soft);
-    font-size: 0.95rem;
+    margin: 0.9rem auto 3rem;
+    padding: 0;
 }
+
+.seo-card {
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--hub-border);
+    border-radius: var(--hub-radius);
+    background: var(--hub-surface);
+    box-shadow: var(--hub-shadow-sm);
+}
+
+.seo-card .seo-card {
+    background: var(--hub-surface-soft);
+}
+
+.seo-card h1 {
+    margin: 0 0 0.45rem;
+    font-size: clamp(1.7rem, 3vw, 2.35rem);
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+}
+
+.seo-card h2 {
+    margin: 0 0 0.9rem;
+    font-size: 1.18rem;
+    letter-spacing: -0.015em;
+}
+
+.seo-card p {
+    color: var(--hub-text-soft);
+}
+
+.seo-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+}
+
+.seo-field {
+    display: grid;
+    gap: 0.4rem;
+}
+
 
 /* =========================================================
-   15. Responsive
+   16. License Card
    ========================================================= */
-
-@media (max-width: 900px) {
-    .hub-topbar__inner {
-        flex-direction: column;
-        align-items: flex-start;
-        padding-block: 1rem;
-    }
-
-    .hub-nav {
-        justify-content: flex-start;
-    }
-
-    .hub-card {
-        grid-column: span 12;
-    }
-
-    .hub-hero {
-        padding: 2rem 1.25rem;
-    }
-
-    .hub-library-card {
-        grid-column: span 12;
-    }
-}
-.hub-theme-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1.25rem;
-}
-
-.hub-theme-card {
-    grid-column: span 6;
-    background: var(--hub-surface);
-    border: 1px solid var(--hub-border);
-    border-radius: var(--hub-radius);
-    box-shadow: var(--hub-shadow);
-    padding: 1.25rem;
-}
-
-.hub-theme-card.is-current {
-    outline: 2px solid rgba(47, 111, 237, 0.18);
-    border-color: var(--hub-primary);
-}
-
-.hub-theme-card__preview {
-    border-radius: 16px;
-    padding: 1rem;
-    border: 1px solid var(--hub-border);
-    margin-bottom: 1rem;
-}
-
-.hub-theme-card__surface {
-    border-radius: 14px;
-    padding: 1rem;
-    border: 1px solid;
-    min-height: 140px;
-}
-
-.hub-theme-card__line {
-    height: 10px;
-    border-radius: 999px;
-    margin-bottom: 0.6rem;
-}
-
-.hub-theme-card__line--title {
-    width: 65%;
-    height: 14px;
-}
-
-.hub-theme-card__accent {
-    width: 90px;
-    height: 32px;
-    border-radius: 999px;
-    margin-top: 1rem;
-}
-
-.hub-theme-card__swatches {
-    display: flex;
-    gap: 0.55rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.hub-theme-card__swatches span {
-    width: 24px;
-    height: 24px;
-    border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.hub-theme-card__form {
-    margin-top: 0.5rem;
-}
-
-@media (max-width: 900px) {
-    .hub-theme-card {
-        grid-column: span 12;
-    }
-}
-.hub-theme-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 1.25rem;
-}
-
-.hub-theme-card {
-    grid-column: span 6;
-    background: var(--hub-surface);
-    border: 1px solid var(--hub-border);
-    border-radius: var(--hub-radius);
-    box-shadow: var(--hub-shadow);
-    padding: 1.25rem;
-}
-
-.hub-theme-card.is-current {
-    outline: 2px solid rgba(47, 111, 237, 0.18);
-    border-color: var(--hub-primary);
-}
-
-.hub-theme-card__preview {
-    border-radius: 16px;
-    padding: 1rem;
-    border: 1px solid var(--hub-border);
-    margin-bottom: 1rem;
-}
-
-.hub-theme-card__surface {
-    border-radius: 14px;
-    padding: 1rem;
-    border: 1px solid;
-    min-height: 140px;
-}
-
-.hub-theme-card__line {
-    height: 10px;
-    border-radius: 999px;
-    margin-bottom: 0.6rem;
-}
-
-.hub-theme-card__line--title {
-    width: 65%;
-    height: 14px;
-}
-
-.hub-theme-card__accent {
-    width: 90px;
-    height: 32px;
-    border-radius: 999px;
-    margin-top: 1rem;
-}
-
-.hub-theme-card__swatches {
-    display: flex;
-    gap: 0.55rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-}
-
-.hub-theme-card__swatches span {
-    width: 24px;
-    height: 24px;
-    border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.hub-theme-card__form {
-    margin-top: 0.5rem;
-}
-
-@media (max-width: 900px) {
-    .hub-theme-card {
-        grid-column: span 12;
-    }
-}
-.hub-theme-card .hub-card__actions {
-    margin-top: 1rem;
-}
 
 .fp-license-card {
-    background: #ffffff;
-    border: 1px solid #d9e2ec;
-    border-radius: 18px;
-    padding: 1.5rem;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--hub-border);
+    border-radius: var(--hub-radius);
+    background: var(--hub-surface);
+    box-shadow: var(--hub-shadow-sm);
 }
 
 .fp-license-card__header {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
 }
 
 .fp-license-card__title {
     margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #102a43;
+    color: var(--hub-text);
+    font-size: 1.12rem;
+    font-weight: 800;
 }
 
 .fp-license-card__subtitle {
-    margin: 0.35rem 0 0;
-    color: #486581;
-    font-size: 0.95rem;
+    margin: 0.3rem 0 0;
+    color: var(--hub-text-soft);
+    font-size: 0.94rem;
     line-height: 1.5;
 }
 
@@ -699,38 +891,38 @@ a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem 0.8rem;
+    padding: 0.46rem 0.72rem;
     border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 850;
     white-space: nowrap;
 }
 
 .fp-license-status--active {
-    background: #ecfdf3;
-    color: #027a48;
-    border: 1px solid #abefc6;
+    background: var(--hub-success-bg);
+    color: var(--hub-success-text);
+    border: 1px solid var(--hub-success-border);
 }
 
 .fp-license-status--invalid,
 .fp-license-status--expired,
 .fp-license-status--revoked {
-    background: #fef3f2;
-    color: #b42318;
-    border: 1px solid #fecdca;
+    background: var(--hub-error-bg);
+    color: var(--hub-error-text);
+    border: 1px solid var(--hub-error-border);
 }
 
 .fp-license-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1rem;
+    gap: 0.85rem;
 }
 
 .fp-license-item {
-    background: #f8fbff;
-    border: 1px solid #e6edf5;
-    border-radius: 14px;
-    padding: 0.9rem 1rem;
+    padding: 0.82rem 0.9rem;
+    border: 1px solid var(--hub-border);
+    border-radius: 13px;
+    background: var(--hub-surface-soft);
 }
 
 .fp-license-item--full {
@@ -739,29 +931,164 @@ a {
 
 .fp-license-label {
     display: block;
-    font-size: 0.8rem;
-    font-weight: 700;
+    margin-bottom: 0.28rem;
+    color: var(--hub-text-muted);
+    font-size: 0.75rem;
+    font-weight: 850;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #627d98;
-    margin-bottom: 0.35rem;
 }
 
 .fp-license-value {
     display: block;
-    font-size: 0.98rem;
-    color: #102a43;
-    line-height: 1.5;
+    color: var(--hub-text);
+    font-size: 0.96rem;
+    line-height: 1.45;
     word-break: break-word;
 }
 
-@media (max-width: 700px) {
-    .fp-license-card__header {
+
+/* =========================================================
+   17. Footer
+   ========================================================= */
+
+.hub-footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--hub-border);
+    background: rgba(255, 255, 255, 0.8);
+}
+
+.hub-footer__inner {
+    width: min(100% - 2rem, var(--hub-max));
+    margin: 0 auto;
+    padding: 1rem 0 1.5rem;
+    color: var(--hub-text-muted);
+    font-size: 0.92rem;
+}
+
+
+/* =========================================================
+   18. Responsive
+   ========================================================= */
+
+@media (max-width: 1020px) {
+    .hub-topbar__inner {
+        align-items: flex-start;
+        padding: 0.6rem 0;
+    }
+
+    .hub-nav {
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 900px) {
+    .hub-main,
+    .seo-wrap {
+        width: min(100% - 1.25rem, var(--hub-max));
+        padding-bottom: 2rem;
+    }
+
+    .hub-topbar__inner {
+        min-height: 60px;
         flex-direction: column;
         align-items: flex-start;
     }
 
+    .hub-nav {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .hub-nav__link,
+    .hub-nav__button {
+        min-height: 36px;
+        padding: 0.48rem 0.72rem;
+        font-size: 0.9rem;
+    }
+
+    .hub-nav__menu {
+        right: auto;
+        left: 0;
+    }
+
+    .hub-card,
+    .hub-library-card,
+    .hub-theme-card {
+        grid-column: span 12;
+    }
+
+    .hub-hero {
+        padding: 1.4rem;
+        border-radius: 20px;
+    }
+
+    .hub-section__head {
+        display: block;
+    }
+
+    .hub-section__actions {
+        margin-top: 0.75rem;
+    }
+
+    .seo-grid,
     .fp-license-grid {
         grid-template-columns: 1fr;
+    }
+
+    .fp-license-card__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 560px) {
+    .hub-main,
+    .seo-wrap {
+        width: min(100% - 1rem, var(--hub-max));
+        padding-top: 0.65rem;
+    }
+
+    .hub-card,
+    .hub-library-card,
+    .hub-theme-card,
+    .hub-panel,
+    .seo-card,
+    .fp-license-card {
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .hub-hero {
+        padding: 1.15rem;
+    }
+
+    .hub-form__actions,
+    .hub-card__actions,
+    .seo-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hub-btn,
+    .button,
+    button[type="submit"] {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   19. Reduced Motion
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
     }
 }

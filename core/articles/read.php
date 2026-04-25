@@ -5,152 +5,117 @@ require dirname(__DIR__) . '/includes/config.php';
 require dirname(__DIR__) . '/includes/functions.php';
 
 $brand = trim((string) ($_GET['brand'] ?? ''));
+$slug  = trim((string) ($_GET['slug'] ?? ''));
 $previewTheme = trim((string) ($_GET['preview_theme'] ?? ''));
 
-/*
-|--------------------------------------------------------------------------
-| If brand is provided → show that brand
-|--------------------------------------------------------------------------
-*/
-if ($brand !== '') {
-    $brandConfig = load_brand_config($brand);
-    $articles = load_articles_for_brand($brand);
-
-    if ($brandConfig === []) {
-        http_response_code(404);
-        $pageTitle = 'Brand Not Found • FoundryPress';
-        $pageDesc  = 'The requested brand could not be found.';
-        $currentUrl = $articlesBaseUrl . '/' . rawurlencode($brand) . '/';
-
-        require dirname(__DIR__) . '/includes/head.php';
-        require dirname(__DIR__) . '/includes/nav.php';
-        ?>
-        <main class="site-main">
-            <div class="site-empty">
-                The requested brand could not be found.
-            </div>
-        </main>
-        <?php
-        require dirname(__DIR__) . '/includes/footer.php';
-        exit;
-    }
-
-    $pageTitle = ($brandConfig['name'] ?? 'Brand') . ' Articles • FoundryPress';
-    $pageDesc  = 'Article library powered by FoundryPress.';
-    $currentUrl = $articlesBaseUrl . '/' . rawurlencode($brand) . '/';
-
-    require dirname(__DIR__) . '/includes/head.php';
-    require dirname(__DIR__) . '/includes/nav.php';
-    ?>
-
-    <main class="site-main">
-        <section class="site-hero">
-            <span class="site-kicker">Articles</span>
-            <h1><?= h((string) ($brandConfig['name'] ?? 'Brand')) ?></h1>
-            <p>
-                Browse the article library for this brand.
-                <?php if ($previewTheme !== ''): ?>
-                    <br><strong>Preview theme:</strong> <?= h($previewTheme) ?>
-                <?php endif; ?>
-            </p>
-        </section>
-
-        <?php if ($articles === []): ?>
-            <div class="site-empty">No articles found yet.</div>
-        <?php else: ?>
-            <div class="article-grid">
-                <?php foreach ($articles as $article): ?>
-                    <?php
-                    $slug = (string) ($article['slug'] ?? '');
-                    $title = (string) ($article['title'] ?? 'Untitled');
-                    $desc = (string) ($article['desc'] ?? '');
-                    $url = brand_article_url($brand, $slug);
-
-                    if ($previewTheme !== '') {
-                        $url .= '?preview_theme=' . rawurlencode($previewTheme);
-                    }
-                    ?>
-                    <article class="article-card">
-                        <h2><?= h($title) ?></h2>
-                        <p><?= h($desc) ?></p>
-                        <a class="article-card__link" href="<?= h($url) ?>">Read Article</a>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </main>
-
-    <?php
-    require dirname(__DIR__) . '/includes/footer.php';
+if ($brand === '' || $slug === '') {
+    http_response_code(404);
+    echo 'Invalid request.';
     exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| No brand provided → handle selector / redirect
-|--------------------------------------------------------------------------
-*/
+$brandConfig = load_brand_config($brand);
+$articles = load_articles_for_brand($brand);
+$article = find_article_by_slug($articles, $slug);
 
-$brands = get_registered_brands();
-
-if (count($brands) === 1) {
-    header('Location: ' . brand_articles_url((string) $brands[0]['slug']));
+if ($brandConfig === [] || $article === null) {
+    http_response_code(404);
+    echo 'Article not found.';
     exit;
 }
 
-if ($brands === []) {
-    $pageTitle = 'Articles • FoundryPress';
-    $pageDesc  = 'No brands available yet.';
+$title = (string) ($article['title'] ?? 'Untitled');
+$description = (string) (
+    $article['meta_description']
+    ?? $article['summary']
+    ?? $article['excerpt']
+    ?? ''
+);
 
-    require dirname(__DIR__) . '/includes/head.php';
-    require dirname(__DIR__) . '/includes/nav.php';
-    ?>
-    <main class="site-main">
-        <section class="site-hero">
-            <h1>No Brands Yet</h1>
-            <p>Create your first brand in the hub to begin.</p>
-        </section>
-    </main>
-    <?php
-    require dirname(__DIR__) . '/includes/footer.php';
-    exit;
-}
+$body = (string) (
+    $article['body']
+    ?? $article['content']
+    ?? ''
+);
 
-$pageTitle = 'Select a Brand • FoundryPress';
-$pageDesc  = 'Choose a brand to view its articles.';
+$author = (string) ($article['author'] ?? ($brandConfig['default_author'] ?? 'FoundryPress'));
+$category = (string) ($article['category'] ?? ($brandConfig['default_category'] ?? 'General'));
+$publishDate = (string) ($article['publish_date'] ?? '');
+$readingTime = (string) ($article['reading_time'] ?? '');
+
+$heroImage = trim((string) (
+    $article['hero_image']
+    ?? $article['og_image']
+    ?? ''
+));
+
+$ctaText = trim((string) ($article['cta_text'] ?? ''));
+$ctaUrl  = trim((string) ($article['cta_url'] ?? ''));
+
+$pageTitle = $title . ' • ' . ($brandConfig['name'] ?? 'Brand');
+$pageDesc  = $description;
+$currentUrl = brand_article_url($brand, $slug);
 
 require dirname(__DIR__) . '/includes/head.php';
 require dirname(__DIR__) . '/includes/nav.php';
 ?>
 
-<main class="site-main">
-    <section class="site-hero">
-        <span class="site-kicker">FoundryPress</span>
-        <h1>Select a Brand</h1>
-        <p>Choose a brand to explore its article library.</p>
-    </section>
+<main class="site-main article-page">
 
-    <section class="site-section">
-        <div class="article-grid">
-            <?php foreach ($brands as $brandItem): ?>
-                <article class="article-card">
-                    <h2><?= h((string) $brandItem['name']) ?></h2>
+    <article class="article-shell">
 
-                    <?php if (($brandItem['tagline'] ?? '') !== ''): ?>
-                        <p><strong><?= h((string) $brandItem['tagline']) ?></strong></p>
-                    <?php endif; ?>
+        <header class="article-header">
+            <a class="article-back-link" href="<?= h(brand_articles_url($brand)) ?>">
+                ← Back to Articles
+            </a>
 
-                    <?php if (($brandItem['description'] ?? '') !== ''): ?>
-                        <p><?= h((string) $brandItem['description']) ?></p>
-                    <?php endif; ?>
+            <?php if ($category !== ''): ?>
+                <span class="site-kicker"><?= h($category) ?></span>
+            <?php endif; ?>
 
-                    <a class="article-card__link" href="<?= h(brand_articles_url((string) $brandItem['slug'])) ?>">
-                        View Articles
-                    </a>
-                </article>
-            <?php endforeach; ?>
+            <h1><?= h($title) ?></h1>
+
+            <?php if ($description !== ''): ?>
+                <p class="article-lede"><?= h($description) ?></p>
+            <?php endif; ?>
+
+            <div class="article-meta">
+                <?php if ($author !== ''): ?>
+                    <span><?= h($author) ?></span>
+                <?php endif; ?>
+
+                <?php if ($publishDate !== ''): ?>
+                    <span><?= h($publishDate) ?></span>
+                <?php endif; ?>
+
+                <?php if ($readingTime !== ''): ?>
+                    <span><?= h($readingTime) ?></span>
+                <?php endif; ?>
+            </div>
+        </header>
+
+        <?php if ($heroImage !== ''): ?>
+            <figure class="article-hero-image">
+                <img src="<?= h($heroImage) ?>" alt="<?= h($title) ?>">
+            </figure>
+        <?php endif; ?>
+
+        <div class="article-content">
+            <?= $body ?>
         </div>
-    </section>
+
+        <?php if ($ctaText !== '' && $ctaUrl !== ''): ?>
+            <aside class="article-cta">
+                <h2>Ready for the next step?</h2>
+                <p>Continue exploring your FoundryPress system from the Hub.</p>
+                <a class="site-btn site-btn--primary" href="<?= h($ctaUrl) ?>">
+                    <?= h($ctaText) ?>
+                </a>
+            </aside>
+        <?php endif; ?>
+
+    </article>
+
 </main>
 
 <?php require dirname(__DIR__) . '/includes/footer.php'; ?>
