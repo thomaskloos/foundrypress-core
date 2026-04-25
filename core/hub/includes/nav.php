@@ -31,8 +31,9 @@ $previewBrand = trim((string) ($defaultBrand ?? ''));
     <div class="hub-nav__dropdown">
         <button class="hub-nav__link hub-nav__button" type="button">View ▼</button>
         <div class="hub-nav__menu">
-            <a href="<?= h(brand_articles_url($previewBrand)) ?>">Preview Brand</a>
-            <a href="/">Main Site</a>
+            <a class="hub-nav__link" href="<?= h(brand_articles_url($previewBrand)) ?>">Preview Brand</a>
+<a class="hub-nav__link" href="/">Main Site</a>
+<a class="hub-nav__link" href="/hub/logout.php">Logout</a>
         </div>
     </div>
 </nav>

@@ -13,6 +13,8 @@ $currentUrl = $hubBase . '/create-brand.php';
 $message = '';
 $error = '';
 
+$registeredBrands = function_exists('get_registered_brands') ? get_registered_brands() : [];
+
 function fp_slugify(string $text): string
 {
     $text = strtolower(trim($text));
@@ -155,6 +157,54 @@ require __DIR__ . '/includes/nav.php';
             </p>
         </div>
     </section>
+    
+   <section class="hub-section">
+        <div class="hub-panel">
+            <div class="hub-panel__content">
+    <h2>Existing Brands</h2>
+    <p>Brands currently detected in the <code>/brands/</code> directory.</p>
+</div>
+
+    <?php if ($registeredBrands === []): ?>
+        <div class="hub-panel">
+            <div class="hub-panel__content">
+                <p>No brands found yet. Create your first brand below.</p>
+            </div>
+        </div>
+    <?php else: ?>
+       
+            <?php foreach ($registeredBrands as $brand): ?>
+                <article class="hub-card">
+                    <span class="hub-card__tag"><?= h((string) ($brand['template'] ?? 'Brand')) ?></span>
+                    <h3><?= h((string) ($brand['name'] ?? $brand['slug'] ?? 'Untitled Brand')) ?></h3>
+
+                    <?php if (!empty($brand['tagline'])): ?>
+                        <p><strong><?= h((string) $brand['tagline']) ?></strong></p>
+                    <?php endif; ?>
+
+                    <?php if (!empty($brand['description'])): ?>
+                        <p><?= h((string) $brand['description']) ?></p>
+                    <?php else: ?>
+                        <p>Slug: <?= h((string) ($brand['slug'] ?? '')) ?></p>
+                    <?php endif; ?>
+
+                    <?php if (isset($brand['article_count'])): ?>
+                        <p class="hub-card__meta-text">
+                            <?= h((string) $brand['article_count']) ?>
+                            article<?= (int) $brand['article_count'] === 1 ? '' : 's' ?>
+                        </p>
+                    <?php endif; ?>
+
+                    <?php if (!empty($brand['slug'])): ?>
+                        <a class="hub-card__link" href="<?= h(brand_articles_url((string) $brand['slug'])) ?>">
+                            Preview Articles
+                        </a>
+                    <?php endif; ?>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</section>
 
     <section class="hub-section">
         <div class="hub-panel">

@@ -112,7 +112,7 @@ $lastCheckHttpCode = (string) (($licenseStatus['last_check_http_code'] ?? null) 
 
 $domainsUsedDisplay = $isActivated && $maxDomains > 0 ? '1 / ' . $maxDomains : '—';
 
-$upgradeBaseUrl = 'https://foundrypressapp.com/upgrade';
+$upgradeBaseUrl = 'https://foundrypressapp.com/buy';
 $upgradeOptions = [];
 
 if ($licensePlan === 'solo') {
@@ -121,14 +121,14 @@ if ($licensePlan === 'solo') {
             'name' => 'Studio',
             'sites' => '3 sites',
             'desc' => 'Ideal for multiple installs, growing brands, or a small client setup.',
-            'url'  => $upgradeBaseUrl . '?plan=studio',
+            'url'  => $upgradeBaseUrl . '?plan=solo-to-studio',
             'cta'  => 'Buy Studio License',
         ],
         [
             'name' => 'Pro',
             'sites' => '10 sites',
             'desc' => 'Best for freelancers, studios, and serious multi-site publishing.',
-            'url'  => $upgradeBaseUrl . '?plan=pro',
+            'url'  => $upgradeBaseUrl . '?plan=solo-to-pro',
             'cta'  => 'Buy Pro License',
         ],
     ];
@@ -138,7 +138,7 @@ if ($licensePlan === 'solo') {
             'name' => 'Pro',
             'sites' => '10 sites',
             'desc' => 'Scale up for client work, larger site portfolios, or long-term growth.',
-            'url'  => $upgradeBaseUrl . '?plan=pro',
+            'url'  => $upgradeBaseUrl . '?plan=studio-to-pro',
             'cta'  => 'Buy Pro License',
         ],
     ];

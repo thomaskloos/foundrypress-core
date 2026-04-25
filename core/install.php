@@ -7,13 +7,6 @@ session_start();
 |--------------------------------------------------------------------------
 | FoundryPress Installer
 |--------------------------------------------------------------------------
-| Creates:
-| /config/site.php
-| /license.json
-| /brands/{brand}/brand.php
-| /brands/{brand}/_data/articles.json
-| /brands/{brand}/assets/
-|--------------------------------------------------------------------------
 */
 
 function h(string $value): string
@@ -59,17 +52,22 @@ function fp_slugify(string $value): string
 
 function write_php_config(array $data, string $targetFile): bool
 {
+    $siteName      = var_export($data['site_name'], true);
+    $brandSlug     = var_export($data['brand_slug'], true);
+    $adminUsername = var_export($data['admin_username'], true);
+    $passwordHash  = var_export($data['admin_password_hash'], true);
+    $installedAt   = var_export($data['installed_at'], true);
+
     $php = <<<PHP
 <?php
 declare(strict_types=1);
 
 define('FP_INSTALLED', true);
-define('FP_SITE_NAME', {$data['site_name']});
-define('FP_BRAND_NAME', {$data['brand_slug']});
-define('FP_BASE_URL', {$data['base_url']});
-define('FP_ADMIN_USERNAME', {$data['admin_username']});
-define('FP_ADMIN_PASSWORD_HASH', {$data['admin_password_hash']});
-define('FP_INSTALLED_AT', {$data['installed_at']});
+define('FP_SITE_NAME', {$siteName});
+define('FP_BRAND_NAME', {$brandSlug});
+define('FP_ADMIN_USERNAME', {$adminUsername});
+define('FP_ADMIN_PASSWORD_HASH', {$passwordHash});
+define('FP_INSTALLED_AT', {$installedAt});
 
 PHP;
 
@@ -109,19 +107,12 @@ function write_initial_brand(
         return false;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | brand.php
-    |--------------------------------------------------------------------------
-    */
-
     $brandConfig = [
         'name' => $brandName,
         'slug' => $brandSlug,
         'tagline' => 'Your brand tagline',
-        'description' => 'Describe your business, audience, or content focus here.',
+        'description' => 'Describe your business here.',
 
-        // NEW homepage config
         'homepage' => [
             'headline' => 'Welcome to ' . $siteName,
             'intro' => 'Your FoundryPress site is live. Update this homepage content in Hub → Site Settings.',
@@ -129,10 +120,6 @@ function write_initial_brand(
             'primary_cta_url' => '/articles/' . $brandSlug . '/',
         ],
 
-        'base_url' => '',
-        'article_path' => '/articles/',
-        'brand_path' => '/brands/' . $brandSlug . '/',
-        'logo' => '',
         'template' => 'core-clean',
         'default_author' => 'FoundryPress',
         'default_category' => 'General',
@@ -157,12 +144,6 @@ PHP;
         return false;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Starter article
-    |--------------------------------------------------------------------------
-    */
-
     $starterArticle = [
         [
             'id' => 'welcome',
@@ -185,25 +166,13 @@ PHP;
         JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
     );
 
-    if (
-        $json === false ||
+    return $json !== false &&
         file_put_contents(
             $dataDir . '/articles.json',
             $json,
             LOCK_EX
-        ) === false
-    ) {
-        return false;
-    }
-
-    return true;
+        ) !== false;
 }
-
-/*
-|--------------------------------------------------------------------------
-| Main Install Logic
-|--------------------------------------------------------------------------
-*/
 
 $rootPath = __DIR__;
 $configDir = $rootPath . '/config';
@@ -214,6 +183,14 @@ $alreadyInstalled = is_file($siteConfigFile);
 
 $errors = [];
 $success = false;
+
+$defaults = [
+    'site_name' => 'FoundryPress Site',
+    'brand_name' => 'My Brand',
+    'base_url' => detect_base_url(),
+    'admin_username' => 'admin',
+    'license_key' => ''
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$alreadyInstalled) {
     $siteName = trim((string) ($_POST['site_name'] ?? ''));
@@ -236,18 +213,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$alreadyInstalled) {
 
         $installedAt = date(DATE_ATOM);
 
-        $configWritten = write_php_config([
-            'site_name' => var_export($siteName, true),
-            'brand_slug' => var_export($brandSlug, true),
-            'base_url' => var_export($baseUrl, true),
-            'admin_username' => var_export($adminUsername, true),
-            'admin_password_hash' => var_export(password_hash($adminPassword, PASSWORD_DEFAULT), true),
-            'installed_at' => var_export($installedAt, true),
+        write_php_config([
+            'site_name' => $siteName,
+            'brand_slug' => $brandSlug,
+            'base_url' => $baseUrl,
+            'admin_username' => $adminUsername,
+            'admin_password_hash' => password_hash($adminPassword, PASSWORD_DEFAULT),
+            'installed_at' => $installedAt
         ], $siteConfigFile);
-
-        if (!$configWritten) {
-            $errors[] = 'Could not write site config.';
-        }
 
         write_license_json([
             'license_key' => $licenseKey,
@@ -267,40 +240,205 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$alreadyInstalled) {
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Install FoundryPress</title>
+<meta charset="UTF-8">
+<title>Install FoundryPress</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+    --bg: #f6f4ef;
+    --panel: #ffffff;
+    --text: #18212f;
+    --muted: #667085;
+    --border: #d8dee8;
+    --accent: #2f5d62;
+    --accent-dark: #24484c;
+    --danger: #b42318;
+    --success: #027a48;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(47, 93, 98, 0.12), transparent 34rem),
+        var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 760px;
+    margin: 56px auto;
+    padding: 0 20px;
+}
+
+.card,
+.container {
+    background: transparent;
+}
+
+.container > h1,
+.container > form,
+.container > .success,
+.container > .error {
+    max-width: none;
+}
+
+.container {
+    background: var(--panel);
+    border: 1px solid rgba(16, 24, 40, 0.08);
+    border-radius: 24px;
+    padding: 42px;
+    box-shadow: 0 24px 70px rgba(16, 24, 40, 0.08);
+}
+
+h1 {
+    margin: 0 0 10px;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.04em;
+    line-height: 1;
+}
+
+h1::after {
+    content: "Create your site config, first brand, starter article, and Hub login.";
+    display: block;
+    max-width: 560px;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.6;
+}
+
+form {
+    margin-top: 28px;
+    display: grid;
+    gap: 16px;
+}
+
+input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(47, 93, 98, 0.12);
+}
+
+button {
+    justify-self: start;
+    border: 0;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #fff;
+    padding: 13px 22px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.error,
+.success {
+    margin-top: 18px;
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.error {
+    background: #fff3f0;
+    border: 1px solid #fecdca;
+    color: var(--danger);
+}
+
+.success {
+    background: #ecfdf3;
+    border: 1px solid #abefc6;
+    color: var(--success);
+}
+
+.success a {
+    color: var(--accent-dark);
+    font-weight: 700;
+}
+
+@media (min-width: 720px) {
+    form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    input[name="base_url"],
+    input[name="license_key"],
+    input[name="admin_password"],
+    button {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        margin: 20px auto;
+        padding: 28px 20px;
+        border-radius: 18px;
+    }
+}
+</style>
 </head>
 <body>
 
-<?php if ($alreadyInstalled): ?>
-    <h1>FoundryPress Already Installed</h1>
-    <p>Delete install.php after setup.</p>
-
-<?php elseif ($success): ?>
-    <h1>Installation Complete</h1>
-    <p>Your site is ready.</p>
-    <a href="/hub/login.php">Login to Hub</a>
-
-<?php else: ?>
+<div class="container">
     <h1>Install FoundryPress</h1>
 
-    <?php foreach ($errors as $error): ?>
-        <p><?= h($error) ?></p>
-    <?php endforeach; ?>
+    <?php if ($alreadyInstalled): ?>
+        <div class="success">FoundryPress is already installed.</div>
 
-    <form method="post">
-        <input name="site_name" placeholder="Site Name" required>
-        <input name="brand_name" placeholder="Brand Name" required>
-        <input name="base_url" value="<?= h(detect_base_url()) ?>" required>
-        <input name="admin_username" placeholder="Admin Username" required>
-        <input name="license_key" placeholder="License Key">
-        <input name="admin_password" type="password" placeholder="Password" required>
-        <button type="submit">Install</button>
-    </form>
-<?php endif; ?>
+    <?php elseif ($success): ?>
+        <div class="success">
+            Installation complete.
+            <br><br>
+            <a href="/hub/login.php">Go to Hub Login</a>
+        </div>
+
+    <?php else: ?>
+
+        <?php foreach ($errors as $error): ?>
+            <div class="error"><?= h($error) ?></div>
+        <?php endforeach; ?>
+
+        <form method="post">
+            <input name="site_name" placeholder="Site Name" value="<?= h($defaults['site_name']) ?>">
+            <input name="brand_name" placeholder="Brand Name" value="<?= h($defaults['brand_name']) ?>">
+            <input name="base_url" placeholder="Base URL" value="<?= h($defaults['base_url']) ?>">
+            <input name="admin_username" placeholder="Admin Username" value="<?= h($defaults['admin_username']) ?>">
+            <input name="license_key" placeholder="License Key">
+            <input name="admin_password" type="password" placeholder="Password">
+            <button type="submit">Install</button>
+        </form>
+
+    <?php endif; ?>
+</div>
 
 </body>
 </html>

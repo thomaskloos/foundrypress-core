@@ -11,7 +11,14 @@ if (!is_file($siteConfigFile) && is_file($installFile)) {
 
 require __DIR__ . '/bootstrap.php';
 
-$brandSlug = trim((string) ($defaultBrand ?? ''));
+$brandSlug = '';
+
+if (isset($defaultBrand) && trim((string) $defaultBrand) !== '') {
+    $brandSlug = trim((string) $defaultBrand);
+} elseif (defined('FP_BRAND_NAME')) {
+    $brandSlug = trim((string) FP_BRAND_NAME);
+}
+
 $brandConfig = $brandSlug !== '' ? load_brand_config($brandSlug) : [];
 
 $brandName = trim((string) ($brandConfig['name'] ?? $siteName));
@@ -74,18 +81,12 @@ require __DIR__ . '/includes/nav.php';
             </div>
 
             <div class="demo-banner__actions">
-                <?php if ($primaryCtaUrl !== ''): ?>
-                    <a class="site-btn site-btn--primary" href="<?= h($primaryCtaUrl) ?>">
-                        <?= h($primaryCtaText !== '' ? $primaryCtaText : 'Learn More') ?>
-                    </a>
-                <?php endif; ?>
-
-                <?php if ($articlesUrl !== ''): ?>
-                    <a class="site-btn site-btn--secondary" href="<?= h($articlesUrl) ?>">
-                        View Articles
-                    </a>
-                <?php endif; ?>
-            </div>
+    <?php if ($primaryCtaUrl !== ''): ?>
+        <a class="site-btn site-btn--primary" href="<?= h($primaryCtaUrl) ?>">
+            <?= h($primaryCtaText !== '' ? $primaryCtaText : 'Read Articles') ?>
+        </a>
+    <?php endif; ?>
+</div>
         </div>
     </section>
 

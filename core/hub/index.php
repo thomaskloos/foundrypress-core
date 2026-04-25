@@ -88,13 +88,11 @@ $themeCards = [
 <main class="hub-main">
     <section class="hub-hero">
         <div class="hub-hero__content">
-            <span class="hub-kicker">Demo Environment</span>
-            <h1>FoundryPress Hub</h1>
-            <p>
-                This hub is the working control center for demo builds, theme testing, and new brand setup inside
-                the FoundryPress ecosystem.
-            </p>
-
+            <span class="site-kicker">Control Center</span>
+<h1><?= h($siteName) ?> Hub</h1>
+<p>
+    Manage your articles, site settings, themes, and brand content from one place.
+</p>
             <div class="hub-hero__actions">
                 <a class="hub-btn hub-btn--primary" href="/hub/create-brand.php">Create New Brand</a>
                 <a class="hub-btn hub-btn--secondary" href="<?= h(brand_articles_url($previewBrand)) ?>">Preview Articles</a>

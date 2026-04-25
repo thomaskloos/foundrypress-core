@@ -1,7 +1,25 @@
 <?php
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/includes/license.php';
+require_once dirname(__DIR__) . '/config/app.php';
+
+/*
+|--------------------------------------------------------------------------
+| Force Installer Before Hub Usage
+|--------------------------------------------------------------------------
+*/
+
+$siteConfigFile = FP_CONFIG_PATH . '/site.php';
+$installFile = FP_ROOT_PATH . '/install.php';
+
+if (!is_file($siteConfigFile) && is_file($installFile)) {
+    header('Location: ' . rtrim((string) FP_BASE_PATH, '/') . '/install.php');
+    exit;
+}
+
+require_once FP_CONFIG_PATH . '/site.php';
+require_once FP_INCLUDES_PATH . '/functions.php';
+require_once FP_INCLUDES_PATH . '/license.php';
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/auth.php';
 
