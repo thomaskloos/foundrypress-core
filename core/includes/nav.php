@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-$navBrand = $defaultBrand ?? 'demo';
+$navBrand = trim((string) ($defaultBrand ?? ''));
 ?>
 <header class="site-header">
     <div class="site-header__inner">

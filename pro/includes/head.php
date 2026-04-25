@@ -62,7 +62,7 @@ $finalTwitterCard = 'summary_large_image';
 | 1. $brandSlug
 | 2. $brandConfig['slug']
 | 3. $defaultBrand
-| 4. 'demo'
+| 4. empty fallback
 |
 */
 $seoBrandSlug = '';
@@ -73,9 +73,8 @@ if (!empty($brandSlug)) {
     $seoBrandSlug = (string) $brandConfig['slug'];
 } elseif (!empty($defaultBrand)) {
     $seoBrandSlug = (string) $defaultBrand;
-} else {
-    $seoBrandSlug = 'demo';
 }
+
 
 if (function_exists('fp_pro_get_page_seo')) {
     $seoTags = fp_pro_get_page_seo(

@@ -13,6 +13,7 @@ function Write-Step {
 
 function Remove-IfExists {
     param([string]$PathToRemove)
+
     if (Test-Path $PathToRemove) {
         Remove-Item -Path $PathToRemove -Recurse -Force
     }
@@ -20,6 +21,7 @@ function Remove-IfExists {
 
 function Ensure-Folder {
     param([string]$PathToCreate)
+
     if (-not (Test-Path $PathToCreate)) {
         New-Item -ItemType Directory -Path $PathToCreate | Out-Null
     }
@@ -98,16 +100,20 @@ function Remove-UnwantedCoreFiles {
     $pathsToRemove = @(
         ".gitignore",
         "FoundryPress.code-workspace",
-        "REPO_NOTES.md"
+        "REPO_NOTES.md",
+        "REFACTOR_NOTES.md",
+        "REFACTOR-NOTES.md",
+        "RELEASE_SCRIPT_NOTES.md",
+        "build-release.ps1",
+        "release-tag.ps1",
+        "pro",
+        "brands/demo"
     )
 
     foreach ($path in $pathsToRemove) {
         $full = Join-Path $CoreStage $path
         Remove-IfExists -PathToRemove $full
     }
-
-    $proPath = Join-Path $CoreStage "pro"
-    Remove-IfExists -PathToRemove $proPath
 }
 
 function Remove-UnwantedProFiles {
@@ -116,7 +122,11 @@ function Remove-UnwantedProFiles {
     $pathsToRemove = @(
         ".gitignore",
         "FoundryPress.code-workspace",
-        "REPO_NOTES.md"
+        "REPO_NOTES.md",
+        "REFACTOR_NOTES.md",
+        "RELEASE_SCRIPT_NOTES.md",
+        "build-release.ps1",
+        "release-tag.ps1"
     )
 
     foreach ($path in $pathsToRemove) {
@@ -153,7 +163,7 @@ if (-not (Test-Path $proSource)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    $Version = Read-Host "Enter release version (example: 1.0.0)"
+    $Version = Read-Host "Enter release version (example: 1.0.1)"
 }
 
 $coreStage = Join-Path $buildDir "core-stage"

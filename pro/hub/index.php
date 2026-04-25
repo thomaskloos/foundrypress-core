@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/includes/config.php';
-require dirname(__DIR__) . '/includes/functions.php';
+require dirname(__DIR__) . '/bootstrap.php';
 
 $licenseStatus = fp_get_license_status();
 require __DIR__ . '/includes/auth.php';
@@ -34,7 +33,7 @@ $pageTitle = 'FoundryPress Hub';
 $pageDesc  = 'FoundryPress demo hub for testing themes, workflows, and brand setups.';
 $currentUrl = $hubBase . '/';
 
-$previewBrand = $defaultBrand ?? 'demo';
+$previewBrand = trim((string) ($defaultBrand ?? ''));
 $registeredBrands = get_registered_brands();
 
 require __DIR__ . '/includes/head.php';

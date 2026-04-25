@@ -1,8 +1,15 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/includes/config.php';
-require __DIR__ . '/includes/functions.php';
+$siteConfigFile = __DIR__ . '/config/site.php';
+$installFile = __DIR__ . '/install.php';
+
+if (!is_file($siteConfigFile) && is_file($installFile)) {
+    header('Location: /install.php');
+    exit;
+}
+
+require __DIR__ . '/bootstrap.php';
 
 $brandSlug = trim((string) ($defaultBrand ?? ''));
 $brandConfig = $brandSlug !== '' ? load_brand_config($brandSlug) : [];

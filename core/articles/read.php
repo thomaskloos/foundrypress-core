@@ -1,8 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/includes/config.php';
-require dirname(__DIR__) . '/includes/functions.php';
+require dirname(__DIR__) . '/bootstrap.php';
 
 $brand = trim((string) ($_GET['brand'] ?? ''));
 $slug  = trim((string) ($_GET['slug'] ?? ''));

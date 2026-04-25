@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/hub/', PHP_URL_PATH) ?: '/hub/';
-$previewBrand = $defaultBrand ?? 'demo';
+$previewBrand = trim((string) ($defaultBrand ?? ''));
 ?>
 <header class="hub-topbar">
     <div class="hub-topbar__inner">
