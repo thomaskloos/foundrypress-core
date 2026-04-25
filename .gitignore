@@ -1,3 +1,8 @@
+# Build artifacts
+/build/
+/releases/
+*.zip
+
 # System / OS
 .DS_Store
 Thumbs.db
@@ -8,9 +13,14 @@ Thumbs.db
 # Local config (DO NOT SHARE)
 config/site.php
 /license-data/
+license.json
 
-# Node / misc (future-safe)
+# Generated brand installs
+brands/*
+!brands/.gitkeep
+
+# Node / misc
 node_modules/
 
-# VS Code (optional)
+# VS Code
 .vscode/settings.json

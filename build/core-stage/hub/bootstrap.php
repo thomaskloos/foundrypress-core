@@ -1,6 +1,0 @@
-<?php
-declare(strict_types=1);
-
-require_once dirname(__DIR__) . '/includes/license.php';
-require_once __DIR__ . '/includes/functions.php';
-require_once __DIR__ . '/includes/auth.php';
